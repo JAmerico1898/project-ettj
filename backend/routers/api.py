@@ -8,13 +8,17 @@ from schemas.contracts import (
     DI1Response,
     CurveRequest,
     CurveResponse,
+    CurvePoint,
     MethodInfo,
     SmoothingMethod,
 )
 from services.data import di1_service
+from services.models import calculate_curve, MODELS
 
 router = APIRouter(prefix="/api", tags=["API"])
 
+# Business days per year (Brazilian convention)
+BUSINESS_DAYS_PER_YEAR = 252
 
 # Method definitions with metadata
 METHODS: List[MethodInfo] = [
@@ -103,16 +107,69 @@ async def get_di1_data(
 
 
 @router.post("/curve", response_model=CurveResponse)
-async def calculate_curve(request: CurveRequest) -> CurveResponse:
+async def calculate_yield_curve(request: CurveRequest) -> CurveResponse:
     """
     Calculate smoothed yield curve using specified method.
 
-    Placeholder endpoint - will be implemented in Feature 3.
+    Takes DI1 contract data and applies the selected interpolation/smoothing method
+    to generate a smooth yield curve.
+
+    Returns curve points, fitted parameters (for parametric methods), and
+    goodness-of-fit metrics.
     """
-    # Placeholder response for testing
-    return CurveResponse(
-        reference_date=request.reference_date,
-        method=request.method,
-        points=[],
-        parameters=None,
-    )
+    try:
+        # Validate method
+        method_str = request.method.value
+        if method_str not in MODELS:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Unknown method: {method_str}. "
+                       f"Available methods: {list(MODELS.keys())}"
+            )
+
+        # Convert DI1Contract to dict format expected by calculate_curve
+        contracts_data = [
+            {
+                'years': c.business_days / BUSINESS_DAYS_PER_YEAR,
+                'rate': c.rate
+            }
+            for c in request.contracts
+        ]
+
+        # Prepare parameters
+        params = {}
+        if request.smoothing_parameter is not None:
+            params['smoothing'] = request.smoothing_parameter
+
+        # Calculate curve
+        result = calculate_curve(
+            method=method_str,
+            contracts=contracts_data,
+            parameters=params if params else None
+        )
+
+        # Convert dict points to CurvePoint objects
+        original_points = [CurvePoint(**pt) for pt in result['original_points']]
+        curve_points = [CurvePoint(**pt) for pt in result['curve_points']]
+
+        return CurveResponse(
+            reference_date=request.reference_date,
+            method=request.method,
+            method_name=result['method_name'],
+            method_type=result['method_type'],
+            original_points=original_points,
+            curve_points=curve_points,
+            parameters=result['parameters_used'],
+            metrics=result['metrics'],
+            num_original_points=result['num_original_points'],
+            num_curve_points=result['num_curve_points']
+        )
+
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Error calculating curve: {str(e)}"
+        )

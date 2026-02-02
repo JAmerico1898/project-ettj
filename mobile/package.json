@@ -10,7 +10,7 @@
     "lint": "eslint ."
   },
   "dependencies": {
-    "@react-native-community/datetimepicker": "^8.6.0",
+    "@react-native-community/datetimepicker": "^8.4.4",
     "axios": "^1.6.5",
     "babel-preset-expo": "^54.0.10",
     "expo": "~54.0.0",

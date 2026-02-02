@@ -1,7 +1,7 @@
 """Pydantic schemas for API request/response models."""
 
-from pydantic import BaseModel, Field
-from typing import List, Optional
+from pydantic import BaseModel, Field, ConfigDict
+from typing import List, Optional, Dict, Any
 from datetime import date
 from enum import Enum
 
@@ -36,7 +36,8 @@ class DI1Response(BaseModel):
 
 class CurvePoint(BaseModel):
     """Single point on the yield curve."""
-    business_days: int = Field(..., ge=1)
+    business_days: int = Field(..., ge=0)
+    years: float = Field(..., ge=0, description="Time to maturity in years")
     rate: float = Field(..., ge=0, description="Rate as decimal")
     rate_percent: float = Field(..., ge=0, description="Rate as percentage")
 
@@ -56,13 +57,21 @@ class CurveRequest(BaseModel):
 
 class CurveResponse(BaseModel):
     """Response for curve calculation."""
+    model_config = ConfigDict(populate_by_name=True)
+
     reference_date: date
     method: SmoothingMethod
-    points: List[CurvePoint]
-    parameters: Optional[dict] = Field(
+    method_name: str = Field(..., description="Human-readable method name")
+    method_type: str = Field(..., description="Method category: simple, spline, or parametric")
+    original_points: List[CurvePoint] = Field(..., description="Original input data points")
+    curve_points: List[CurvePoint] = Field(alias="points", description="Smoothed curve points")
+    parameters: Optional[Dict[str, Any]] = Field(
         None,
         description="Fitted parameters for parametric methods"
     )
+    metrics: Dict[str, float] = Field(..., description="Goodness-of-fit metrics (MAE, RMSE, R-squared)")
+    num_original_points: int = Field(..., description="Number of original data points")
+    num_curve_points: int = Field(..., description="Number of curve points generated")
 
 
 class MethodInfo(BaseModel):
