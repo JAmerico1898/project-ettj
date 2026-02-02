@@ -41,3 +41,6 @@ build/
 # Windows reserved names (problematic files)
 nul
 mobile/assets/nul
+
+# Root package-lock (no package.json at root)
+/package-lock.json
