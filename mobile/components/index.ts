@@ -22,3 +22,9 @@ export { CurveTable } from './CurveTable';
 
 // Chart components
 export * from './chart';
+
+// Settings components
+export { SettingsSection } from './SettingsSection';
+export { SettingItem } from './SettingItem';
+export { ThemeSelector } from './ThemeSelector';
+export { ApiConfig } from './ApiConfig';

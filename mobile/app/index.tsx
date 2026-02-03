@@ -3,10 +3,11 @@
  * Date selection, method configuration, and curve calculation
  */
 
-import { useState, useEffect, useCallback } from 'react';
-import { View, StyleSheet, ScrollView, Platform } from 'react-native';
+import { useState, useEffect, useCallback, useLayoutEffect } from 'react';
+import { View, StyleSheet, ScrollView, Platform, TouchableOpacity } from 'react-native';
 import { Text, Button, Card, Surface, Divider } from 'react-native-paper';
-import { useRouter } from 'expo-router';
+import { useRouter, useNavigation } from 'expo-router';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { COLORS } from '../constants/config';
 import { useApp } from '../context/AppContext';
@@ -43,7 +44,23 @@ const STORAGE_KEYS = {
 
 export default function HomeScreen() {
   const router = useRouter();
+  const navigation = useNavigation();
   const { loadMethods, setWorkflowResult, setSelectedDate: setContextDate, loadData } = useApp();
+
+  // Set up header right button for settings
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerRight: () => (
+        <TouchableOpacity
+          onPress={() => router.push('/settings')}
+          style={styles.headerButton}
+          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+        >
+          <MaterialCommunityIcons name="cog" size={24} color="#fff" />
+        </TouchableOpacity>
+      ),
+    });
+  }, [navigation, router]);
 
   // Local state for form inputs
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
@@ -417,6 +434,10 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: COLORS.background,
+  },
+  headerButton: {
+    marginRight: 16,
+    padding: 4,
   },
   scrollView: {
     flex: 1,
