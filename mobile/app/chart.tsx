@@ -43,10 +43,10 @@ export default function ChartScreen() {
       <View style={styles.container}>
         <Surface style={styles.emptyState} elevation={1}>
           <Text variant="headlineSmall" style={styles.emptyTitle}>
-            Nenhum dado disponivel
+            Nenhum dado disponível
           </Text>
           <Text variant="bodyMedium" style={styles.emptyText}>
-            Calcule uma curva na tela inicial para visualizar o grafico.
+            Calcule uma curva na tela inicial para visualizar o gráfico.
           </Text>
           <Button
             mode="contained"
@@ -182,7 +182,7 @@ export default function ChartScreen() {
         {/* Footer */}
         <Surface style={styles.footer} elevation={0}>
           <Text variant="bodySmall" style={styles.footerText}>
-            ETTJ DI1 - Coppead/UFRJ
+            ETTJ DI1 - Prof. José Américo
           </Text>
         </Surface>
       </ScrollView>

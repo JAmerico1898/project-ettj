@@ -3,7 +3,7 @@
  * Date selection, method configuration, and curve calculation
  */
 
-import { useState, useEffect, useCallback, useLayoutEffect } from 'react';
+import { useState, useEffect, useCallback, useLayoutEffect, useRef } from 'react';
 import { View, StyleSheet, ScrollView, Platform, TouchableOpacity } from 'react-native';
 import { Text, Button, Card, Surface, Divider } from 'react-native-paper';
 import { useRouter, useNavigation } from 'expo-router';
@@ -11,6 +11,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { COLORS } from '../constants/config';
 import { useApp } from '../context/AppContext';
+import { useSettings } from '../context/SettingsContext';
 import { useWorkflow } from '../hooks/useWorkflow';
 import { SmoothingMethod } from '../types';
 import {
@@ -46,6 +47,8 @@ export default function HomeScreen() {
   const router = useRouter();
   const navigation = useNavigation();
   const { loadMethods, setWorkflowResult, setSelectedDate: setContextDate, loadData } = useApp();
+  const { settings, isLoading: settingsLoading } = useSettings();
+  const tutorialCheckDone = useRef(false);
 
   // Set up header right button for settings
   useLayoutEffect(() => {
@@ -94,6 +97,16 @@ export default function HomeScreen() {
       });
     },
   });
+
+  // Check if tutorial needs to be shown (first launch)
+  useEffect(() => {
+    if (!settingsLoading && !tutorialCheckDone.current) {
+      tutorialCheckDone.current = true;
+      if (!settings.tutorialCompleted) {
+        router.replace('/tutorial');
+      }
+    }
+  }, [settingsLoading, settings.tutorialCompleted, router]);
 
   // Load methods on mount
   useEffect(() => {
@@ -408,7 +421,7 @@ export default function HomeScreen() {
         {/* Footer */}
         <Surface style={styles.footer} elevation={0}>
           <Text variant="bodySmall" style={styles.footerText}>
-            Coppead/UFRJ - Ferramenta Educacional
+            Prof. José Américo (Coppead/FGV/UCAM) - Ferramenta Educacional
           </Text>
         </Surface>
       </ScrollView>

@@ -224,6 +224,27 @@ export default function SettingsScreen() {
         <SettingsSection title="Recursos" icon="book-open-variant">
           <SettingItem
             type="navigation"
+            title="Tutorial"
+            description="Guia de introducao ao app"
+            icon="school"
+            onPress={() => router.push('/tutorial')}
+          />
+          <SettingItem
+            type="navigation"
+            title="Central de Aprendizado"
+            description="Conceitos e explicacoes"
+            icon="book-education"
+            onPress={() => router.push('/learning')}
+          />
+          <SettingItem
+            type="navigation"
+            title="Glossario"
+            description="Termos tecnicos explicados"
+            icon="book-alphabet"
+            onPress={() => router.push('/glossary')}
+          />
+          <SettingItem
+            type="navigation"
             title="Ajuda e FAQ"
             description="Perguntas frequentes"
             icon="help-circle"

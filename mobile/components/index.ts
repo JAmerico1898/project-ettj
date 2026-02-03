@@ -33,3 +33,6 @@ export { ApiConfig } from './ApiConfig';
 export { ErrorBoundary, withErrorBoundary } from './ErrorBoundary';
 export { OfflineBanner, OfflineIndicator } from './OfflineBanner';
 export { NetworkStatusBar, NetworkDot, NetworkStatusText } from './NetworkStatusBar';
+
+// Education components
+export * from './education';

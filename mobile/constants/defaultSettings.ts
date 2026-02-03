@@ -34,6 +34,9 @@ export interface AppSettings {
   showRawData: boolean;
   chartAnimationsEnabled: boolean;
   decimalPlaces: number;
+
+  // Tutorial state
+  tutorialCompleted: boolean;
 }
 
 /**
@@ -60,6 +63,9 @@ export const DEFAULT_SETTINGS: AppSettings = {
   showRawData: false,
   chartAnimationsEnabled: true,
   decimalPlaces: 4,
+
+  // Tutorial state
+  tutorialCompleted: false,
 };
 
 /**

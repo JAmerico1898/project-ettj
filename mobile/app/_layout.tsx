@@ -75,6 +75,25 @@ function AppLayout() {
               title: 'Ajuda',
             }}
           />
+          <Stack.Screen
+            name="tutorial"
+            options={{
+              title: 'Tutorial',
+              headerShown: false,
+            }}
+          />
+          <Stack.Screen
+            name="learning"
+            options={{
+              title: 'Central de Aprendizado',
+            }}
+          />
+          <Stack.Screen
+            name="glossary"
+            options={{
+              title: 'Glossario',
+            }}
+          />
         </Stack>
       </View>
     </PaperProvider>

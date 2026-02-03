@@ -19,92 +19,92 @@ const FAQ_DATA: FAQItem[] = [
   {
     id: '1',
     category: 'Primeiros Passos',
-    question: 'O que e o ETTJ DI1?',
+    question: 'O que é o ETTJ DI1?',
     answer:
-      'O ETTJ DI1 e uma ferramenta educacional para visualizacao e analise da Estrutura a Termo das Taxas de Juros brasileiras. Utiliza dados de contratos futuros de DI1 negociados na B3 para construir curvas de juros usando diferentes metodos de interpolacao.',
+      'O ETTJ DI1 é uma ferramenta educacional para visualização e análise da Estrutura a Termo das Taxas de Juros brasileiras. Utiliza dados de contratos futuros de DI1 negociados na B3 para construir curvas de juros usando diferentes métodos de interpolação.',
   },
   {
     id: '2',
     category: 'Primeiros Passos',
     question: 'Como calcular uma curva de juros?',
     answer:
-      '1. Na tela inicial, selecione uma data de referencia (ou deixe em branco para usar o ultimo dia util)\n2. Escolha o metodo de suavizacao desejado\n3. Configure parametros adicionais se necessario\n4. Clique em "Calcular Curva"\n5. A curva sera exibida em um grafico interativo',
+      '1. Na tela inicial, selecione uma data de referência (ou deixe em branco para usar o último dia útil)\n2. Escolha o método de suavização desejado\n3. Configure parâmetros adicionais se necessário\n4. Clique em "Calcular Curva"\n5. A curva será exibida em um gráfico interativo',
   },
   {
     id: '3',
     category: 'Primeiros Passos',
-    question: 'O que sao os contratos DI1?',
+    question: 'O que são os contratos DI1?',
     answer:
-      'Os contratos DI1 sao futuros de taxa de juros negociados na B3, referenciados na taxa DI (Depositos Interbancarios). Cada contrato tem uma data de vencimento especifica e uma taxa implicita que reflete as expectativas do mercado para a taxa de juros naquele periodo.',
+      'Os contratos DI1 são futuros de taxa de juros negociados na B3, referenciados na taxa DI (Depósitos Interbancários). Cada contrato tem uma data de vencimento específica e uma taxa implícita que reflete as expectativas do mercado para a taxa de juros naquele período.',
   },
 
   // Methods
   {
     id: '4',
-    category: 'Metodos de Suavizacao',
-    question: 'Qual a diferenca entre os metodos de interpolacao?',
+    category: 'Métodos de Suavização',
+    question: 'Qual a diferença entre os métodos de interpolação?',
     answer:
-      'Os metodos se dividem em duas categorias:\n\nParametricos (Nelson-Siegel e NSS): Ajustam uma funcao matematica aos dados, produzindo curvas suaves que capturam a forma geral da estrutura a termo.\n\nNao-parametricos (Linear, Cubic, Akima, PCHIP, Smoothing Spline): Interpolam diretamente entre os pontos observados, com diferentes niveis de suavidade e preservacao de caracteristicas locais.',
+      'Os métodos se dividem em duas categorias:\n\nParamétricos (Nelson-Siegel e NSS): Ajustam uma função matemática aos dados, produzindo curvas suaves que capturam a forma geral da estrutura a termo.\n\nNão-paramétricos (Linear, Cubic, Akima, PCHIP, Smoothing Spline): Interpolam diretamente entre os pontos observados, com diferentes níveis de suavidade e preservação de características locais.',
   },
   {
     id: '5',
-    category: 'Metodos de Suavizacao',
-    question: 'O que e o modelo Nelson-Siegel-Svensson?',
+    category: 'Métodos de Suavização',
+    question: 'O que é o modelo Nelson-Siegel-Svensson?',
     answer:
-      'O modelo NSS e uma extensao do modelo Nelson-Siegel que adiciona um termo extra para capturar uma segunda "corcova" na curva de juros. E amplamente utilizado por bancos centrais e instituicoes financeiras por sua flexibilidade em representar diferentes formas de curvas de juros.',
+      'O modelo NSS é uma extensão do modelo Nelson-Siegel que adiciona um termo extra para capturar uma segunda "corcova" na curva de juros. É amplamente utilizado por bancos centrais e instituições financeiras por sua flexibilidade em representar diferentes formas de curvas de juros.',
   },
   {
     id: '6',
-    category: 'Metodos de Suavizacao',
-    question: 'O que e o parametro de suavizacao (Smoothing Spline)?',
+    category: 'Métodos de Suavização',
+    question: 'O que é o parâmetro de suavização (Smoothing Spline)?',
     answer:
-      'O parametro de suavizacao controla o balanco entre ajuste aos dados e suavidade da curva. Valores proximos de 0 produzem curvas mais suaves (menos sensivel a ruidos), enquanto valores proximos de 1 ajustam mais precisamente aos pontos observados.',
+      'O parâmetro de suavização controla o balanço entre ajuste aos dados e suavidade da curva. Valores próximos de 0 produzem curvas mais suaves (menos sensível a ruídos), enquanto valores próximos de 1 ajustam mais precisamente aos pontos observados.',
   },
 
   // Data
   {
     id: '7',
     category: 'Dados',
-    question: 'De onde vem os dados?',
+    question: 'De onde vêm os dados?',
     answer:
-      'Os dados sao obtidos da B3 (Brasil, Bolsa, Balcao) atraves da biblioteca pyield. Os precos e taxas sao atualizados diariamente apos o fechamento do mercado.',
+      'Os dados são obtidos da B3 (Brasil, Bolsa, Balcão) através da biblioteca pyield. Os preços e taxas são atualizados diariamente após o fechamento do mercado.',
   },
   {
     id: '8',
     category: 'Dados',
-    question: 'Por que alguns dados nao estao disponiveis?',
+    question: 'Por que alguns dados não estão disponíveis?',
     answer:
-      'Os dados podem nao estar disponiveis por varios motivos:\n- Feriados ou dias sem negociacao\n- Datas futuras\n- Problemas temporarios de conexao com o servidor\n- Datas muito antigas nao disponiveis na fonte',
+      'Os dados podem não estar disponíveis por vários motivos:\n- Feriados ou dias sem negociação\n- Datas futuras\n- Problemas temporários de conexão com o servidor\n- Datas muito antigas não disponíveis na fonte',
   },
   {
     id: '9',
     category: 'Dados',
-    question: 'O que significa "dias uteis"?',
+    question: 'O que significa "dias úteis"?',
     answer:
-      'Dias uteis referem-se aos dias de negociacao no mercado brasileiro, excluindo fins de semana e feriados. O mercado brasileiro utiliza a convencao de 252 dias uteis por ano para calculo de taxas de juros.',
+      'Dias úteis referem-se aos dias de negociação no mercado brasileiro, excluindo fins de semana e feriados. O mercado brasileiro utiliza a convenção de 252 dias úteis por ano para cálculo de taxas de juros.',
   },
 
   // Technical
   {
     id: '10',
-    category: 'Tecnico',
+    category: 'Técnico',
     question: 'Como configurar o servidor da API?',
     answer:
-      'Acesse Configuracoes > Avancado > Configuracao da API. Voce pode alterar a URL base (util se estiver rodando o backend localmente em outro IP) e o timeout das requisicoes.',
+      'Acesse Configurações > Avançado > Configuração da API. Você pode alterar a URL base (útil se estiver rodando o backend localmente em outro IP) e o timeout das requisições.',
   },
   {
     id: '11',
-    category: 'Tecnico',
+    category: 'Técnico',
     question: 'O app funciona offline?',
     answer:
-      'Nao. O aplicativo requer conexao com a internet para buscar dados de mercado e calcular as curvas. Os dados sao processados em um servidor backend que acessa as fontes de dados em tempo real.',
+      'Não. O aplicativo requer conexão com a internet para buscar dados de mercado e calcular as curvas. Os dados são processados em um servidor backend que acessa as fontes de dados em tempo real.',
   },
   {
     id: '12',
-    category: 'Tecnico',
-    question: 'Como exportar o grafico?',
+    category: 'Técnico',
+    question: 'Como exportar o gráfico?',
     answer:
-      'Na tela do grafico, use os botoes de acao disponíveis:\n- Icone de imagem: Salva o grafico como PNG\n- Icone de compartilhamento: Compartilha o grafico com outros apps\n- Icone de area de transferencia: Copia os dados para a area de transferencia',
+      'Na tela do gráfico, use os botões de ação disponíveis:\n- Ícone de imagem: Salva o gráfico como PNG\n- Ícone de compartilhamento: Compartilha o gráfico com outros apps\n- Ícone de área de transferência: Copia os dados para a área de transferência',
   },
 ];
 
@@ -158,16 +158,16 @@ export default function HelpScreen() {
         <Card style={styles.tipsCard}>
           <Card.Content>
             <Text variant="titleSmall" style={styles.tipsTitle}>
-              Dicas Rapidas
+              Dicas Rápidas
             </Text>
             <Text variant="bodySmall" style={styles.tipText}>
-              • Use NSS para analises profissionais da curva de juros
+              • Use NSS para análises profissionais da curva de juros
             </Text>
             <Text variant="bodySmall" style={styles.tipText}>
-              • Limite o prazo maximo para focar em vencimentos especificos
+              • Limite o prazo máximo para focar em vencimentos específicos
             </Text>
             <Text variant="bodySmall" style={styles.tipText}>
-              • Compare diferentes metodos na mesma data
+              • Compare diferentes métodos na mesma data
             </Text>
           </Card.Content>
         </Card>
@@ -223,12 +223,12 @@ export default function HelpScreen() {
         <Card style={styles.contactCard}>
           <Card.Content>
             <Text variant="titleSmall" style={styles.contactTitle}>
-              Ainda tem duvidas?
+              Ainda tem dúvidas?
             </Text>
             <Text variant="bodyMedium" style={styles.contactText}>
-              Este e um projeto educacional do Coppead/UFRJ. Para mais
-              informacoes sobre a metodologia e os modelos utilizados, consulte
-              a literatura academica sobre estrutura a termo de taxas de juros.
+              Este é um projeto educacional do Prof. José Américo (Coppead/FGV/UCAM). Para mais
+              informações sobre a metodologia e os modelos utilizados, consulte
+              a literatura acadêmica sobre estrutura a termo de taxas de juros.
             </Text>
           </Card.Content>
         </Card>

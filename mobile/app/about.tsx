@@ -43,7 +43,7 @@ export default function AboutScreen() {
           Estrutura a Termo das Taxas de Juros
         </Text>
         <Text variant="bodySmall" style={styles.version}>
-          Versao {appVersion}
+          Versão {appVersion}
         </Text>
       </View>
 
@@ -54,14 +54,14 @@ export default function AboutScreen() {
             Sobre o Aplicativo
           </Text>
           <Text variant="bodyMedium" style={styles.cardText}>
-            O ETTJ DI1 e uma ferramenta educacional para modelagem da estrutura
+            O ETTJ DI1 é uma ferramenta educacional para modelagem da estrutura
             a termo das taxas de juros brasileiras utilizando contratos futuros
             de DI1 negociados na B3.
           </Text>
           <Text variant="bodyMedium" style={styles.cardText}>
             O aplicativo permite visualizar e analisar curvas de juros usando
-            diferentes metodos de interpolacao e suavizacao, incluindo modelos
-            parametricos como Nelson-Siegel e Nelson-Siegel-Svensson.
+            diferentes métodos de interpolação e suavização, incluindo modelos
+            paramétricos como Nelson-Siegel e Nelson-Siegel-Svensson.
           </Text>
         </Card.Content>
       </Card>
@@ -79,16 +79,16 @@ export default function AboutScreen() {
             />
             <FeatureItem
               icon="chart-bell-curve"
-              text="7 metodos de suavizacao disponiveis"
+              text="7 métodos de suavização disponíveis"
             />
             <FeatureItem
               icon="chart-line"
-              text="Visualizacao interativa de curvas"
+              text="Visualização interativa de curvas"
             />
             <FeatureItem icon="table" text="Tabelas detalhadas de contratos" />
             <FeatureItem
               icon="export"
-              text="Exportacao de graficos e dados"
+              text="Exportação de gráficos e dados"
             />
           </View>
         </Card.Content>
@@ -98,10 +98,10 @@ export default function AboutScreen() {
       <Card style={styles.card}>
         <Card.Content>
           <Text variant="titleMedium" style={styles.cardTitle}>
-            Creditos
+            Créditos
           </Text>
           <Text variant="bodyMedium" style={styles.cardText}>
-            Desenvolvido como ferramenta educacional no Coppead/UFRJ.
+            Desenvolvido pelo Prof. José Américo (Coppead/FGV/UCAM) como ferramenta educacional.
           </Text>
           <Divider style={styles.divider} />
           <Text variant="labelMedium" style={styles.creditLabel}>
@@ -123,16 +123,16 @@ export default function AboutScreen() {
       <Card style={styles.card}>
         <Card.Content>
           <Text variant="titleMedium" style={styles.cardTitle}>
-            Licenca
+            Licença
           </Text>
           <Text variant="bodyMedium" style={styles.cardText}>
-            Este software e disponibilizado para fins educacionais. Os dados
-            apresentados sao obtidos de fontes publicas e nao devem ser
-            utilizados para tomada de decisoes de investimento.
+            Este software é disponibilizado para fins educacionais. Os dados
+            apresentados são obtidos de fontes públicas e não devem ser
+            utilizados para tomada de decisões de investimento.
           </Text>
           <Text variant="bodySmall" style={styles.disclaimer}>
-            AVISO: Este aplicativo nao constitui recomendacao de investimento.
-            Consulte um profissional qualificado antes de tomar decisoes
+            AVISO: Este aplicativo não constitui recomendação de investimento.
+            Consulte um profissional qualificado antes de tomar decisões
             financeiras.
           </Text>
         </Card.Content>
@@ -147,6 +147,14 @@ export default function AboutScreen() {
           style={styles.linkButton}
         >
           Coppead/UFRJ
+        </Button>
+        <Button
+          mode="outlined"
+          onPress={() => handleOpenLink('https://portal.fgv.br')}
+          icon="school"
+          style={styles.linkButton}
+        >
+          FGV
         </Button>
         <Button
           mode="outlined"
@@ -169,7 +177,7 @@ export default function AboutScreen() {
       {/* Footer */}
       <View style={styles.footer}>
         <Text variant="bodySmall" style={styles.footerText}>
-          © 2024 Coppead/UFRJ
+          © 2024 Prof. José Américo
         </Text>
         <Text variant="bodySmall" style={styles.footerText}>
           Ferramenta Educacional
