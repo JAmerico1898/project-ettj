@@ -3,7 +3,7 @@
  */
 
 import React, { createContext, useContext, useState, useCallback, ReactNode } from 'react';
-import { DI1Contract, DI1Response, SmoothingMethod, MethodInfo } from '../types';
+import { DI1Contract, DI1Response, SmoothingMethod, MethodInfo, WorkflowResponse } from '../types';
 import { api, getErrorMessage } from '../services/api';
 
 interface AppState {
@@ -18,6 +18,9 @@ interface AppState {
   contracts: DI1Contract[];
   methods: MethodInfo[];
 
+  // Workflow result (for chart screen)
+  workflowResult: WorkflowResponse | null;
+
   // UI state
   isLoading: boolean;
   error: string | null;
@@ -26,6 +29,7 @@ interface AppState {
 interface AppContextValue extends AppState {
   setSelectedDate: (date: Date | null) => void;
   setSelectedMethod: (method: SmoothingMethod) => void;
+  setWorkflowResult: (result: WorkflowResponse | null) => void;
   loadData: () => Promise<void>;
   loadMethods: () => Promise<void>;
   clearError: () => void;
@@ -37,6 +41,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [actualDate, setActualDate] = useState<string | null>(null);
   const [selectedMethod, setSelectedMethod] = useState<SmoothingMethod>('nelson_siegel_svensson');
+  const [workflowResult, setWorkflowResult] = useState<WorkflowResponse | null>(null);
   const [contracts, setContracts] = useState<DI1Contract[]>([]);
   const [methods, setMethods] = useState<MethodInfo[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -87,12 +92,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
     selectedDate,
     actualDate,
     selectedMethod,
+    workflowResult,
     contracts,
     methods,
     isLoading,
     error,
     setSelectedDate,
     setSelectedMethod,
+    setWorkflowResult,
     loadData,
     loadMethods,
     clearError,

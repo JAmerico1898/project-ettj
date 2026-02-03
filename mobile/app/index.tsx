@@ -43,7 +43,7 @@ const STORAGE_KEYS = {
 
 export default function HomeScreen() {
   const router = useRouter();
-  const { loadMethods } = useApp();
+  const { loadMethods, setWorkflowResult, setSelectedDate: setContextDate, loadData } = useApp();
 
   // Local state for form inputs
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
@@ -66,7 +66,8 @@ export default function HomeScreen() {
     reset: resetWorkflow,
   } = useWorkflow({
     onSuccess: (data) => {
-      // Navigate to chart on success
+      // Store result in context and navigate to chart
+      setWorkflowResult(data);
       router.push({
         pathname: '/chart',
         params: {
@@ -225,6 +226,14 @@ export default function HomeScreen() {
     resetWorkflow();
   };
 
+  // Handle navigating to data screen
+  const handleViewData = async () => {
+    // Set the date in context and load data
+    setContextDate(selectedDate);
+    // Navigate to data screen - it will auto-load contracts
+    router.push('/data');
+  };
+
   // Check if form is valid
   const isFormValid = validationErrors.length === 0;
 
@@ -370,7 +379,7 @@ export default function HomeScreen() {
 
           <Button
             mode="outlined"
-            onPress={() => router.push('/data')}
+            onPress={handleViewData}
             style={styles.secondaryButton}
             icon="database"
             disabled={isLoading}

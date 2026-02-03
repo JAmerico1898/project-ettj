@@ -2,48 +2,190 @@
  * Chart screen - Interactive rate curve visualization
  */
 
-import { View, StyleSheet, Dimensions } from 'react-native';
-import { Text, Card, ActivityIndicator } from 'react-native-paper';
+import React, { useState, useRef } from 'react';
+import { View, StyleSheet, ScrollView, Alert, Platform } from 'react-native';
+import { Text, Card, Button, Surface } from 'react-native-paper';
+import { useRouter, useLocalSearchParams } from 'expo-router';
+import { captureRef } from 'react-native-view-shot';
 import { COLORS } from '../constants/config';
-
-const screenWidth = Dimensions.get('window').width;
+import { useApp } from '../context/AppContext';
+import {
+  YieldCurveChart,
+  ChartLegend,
+  StatisticsCard,
+  MethodInfoBar,
+  DisplayControls,
+  ChartActions,
+} from '../components/chart';
+import { LoadingOverlay, ErrorMessage } from '../components';
+import {
+  XAxisMode,
+  YAxisMode,
+  calculateChartStats,
+  curveToCSV,
+} from '../utils/chartUtils';
 
 export default function ChartScreen() {
+  const router = useRouter();
+  const params = useLocalSearchParams<{ date: string; method: string }>();
+  const { workflowResult } = useApp();
+
+  // Display mode state
+  const [xMode, setXMode] = useState<XAxisMode>('years');
+  const [yMode, setYMode] = useState<YAxisMode>('percent');
+
+  // Chart ref for screenshot
+  const chartRef = useRef<View>(null);
+
+  // Handle no data state
+  if (!workflowResult) {
+    return (
+      <View style={styles.container}>
+        <Surface style={styles.emptyState} elevation={1}>
+          <Text variant="headlineSmall" style={styles.emptyTitle}>
+            Nenhum dado disponivel
+          </Text>
+          <Text variant="bodyMedium" style={styles.emptyText}>
+            Calcule uma curva na tela inicial para visualizar o grafico.
+          </Text>
+          <Button
+            mode="contained"
+            onPress={() => router.push('/')}
+            style={styles.emptyButton}
+            icon="home"
+          >
+            Voltar ao Inicio
+          </Button>
+        </Surface>
+      </View>
+    );
+  }
+
+  const {
+    method,
+    method_name,
+    method_type,
+    actual_date,
+    contracts_count,
+    curve_points,
+    original_points,
+    metrics,
+  } = workflowResult;
+
+  // Calculate statistics
+  const stats = calculateChartStats(original_points);
+
+  // Generate CSV content
+  const csvContent = curveToCSV(curve_points, original_points, method_name, actual_date);
+  const fileName = `ettj_${method}_${actual_date.replace(/-/g, '')}`;
+
+  // Handle share image
+  const handleShareImage = async (): Promise<string | null> => {
+    if (!chartRef.current) {
+      console.error('Chart ref is null');
+      return null;
+    }
+
+    try {
+      const uri = await captureRef(chartRef, {
+        format: 'png',
+        quality: 1,
+        result: 'data-uri', // Ensure we get a data URI for web compatibility
+      });
+      return uri;
+    } catch (error) {
+      console.error('Error capturing chart:', error);
+      // On web, try alternative approach
+      if (Platform.OS === 'web') {
+        console.log('Trying alternative web capture...');
+      }
+      return null;
+    }
+  };
+
+  // Navigate to data screen
+  const handleNavigateToData = () => {
+    router.push('/data');
+  };
+
   return (
     <View style={styles.container}>
-      <Card style={styles.card}>
-        <Card.Content>
-          <Text variant="titleMedium" style={styles.title}>
-            Curva de Juros
-          </Text>
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Method Info Header */}
+        <MethodInfoBar
+          method={method}
+          methodName={method_name}
+          methodType={method_type}
+          date={actual_date}
+          contractsCount={contracts_count}
+        />
 
-          <View style={styles.chartPlaceholder}>
-            <Text variant="bodyMedium" style={styles.placeholderText}>
-              O gráfico será implementado nas próximas features
+        {/* Chart Card */}
+        <Card style={styles.chartCard}>
+          <Card.Content>
+            <Text variant="titleMedium" style={styles.chartTitle}>
+              Curva de Juros
             </Text>
-            <Text variant="bodySmall" style={styles.placeholderSubtext}>
-              (Feature 2: Dados DI1 + Feature 3: Métodos de Suavização)
-            </Text>
-          </View>
-        </Card.Content>
-      </Card>
 
-      <Card style={styles.infoCard}>
-        <Card.Content>
-          <Text variant="titleSmall" style={styles.infoTitle}>
-            Métodos Disponíveis
+            {/* Display Controls */}
+            <DisplayControls
+              xMode={xMode}
+              yMode={yMode}
+              onXModeChange={setXMode}
+              onYModeChange={setYMode}
+            />
+
+            {/* Chart with ref for screenshot */}
+            <View ref={chartRef} collapsable={false} style={styles.chartContainer}>
+              <YieldCurveChart
+                curvePoints={curve_points}
+                originalPoints={original_points}
+                xMode={xMode}
+                yMode={yMode}
+              />
+              <ChartLegend />
+            </View>
+          </Card.Content>
+        </Card>
+
+        {/* Statistics Card */}
+        <StatisticsCard stats={stats} metrics={metrics} />
+
+        {/* Action Buttons */}
+        <Card style={styles.actionsCard}>
+          <Card.Content>
+            <ChartActions
+              onShareImage={handleShareImage}
+              csvContent={csvContent}
+              fileName={fileName}
+              onNavigateToData={handleNavigateToData}
+            />
+          </Card.Content>
+        </Card>
+
+        {/* Navigation Buttons */}
+        <View style={styles.navigationButtons}>
+          <Button
+            mode="outlined"
+            onPress={() => router.push('/')}
+            icon="arrow-left"
+            style={styles.navButton}
+          >
+            Nova Curva
+          </Button>
+        </View>
+
+        {/* Footer */}
+        <Surface style={styles.footer} elevation={0}>
+          <Text variant="bodySmall" style={styles.footerText}>
+            ETTJ DI1 - Coppead/UFRJ
           </Text>
-          <View style={styles.methodsList}>
-            <Text variant="bodySmall" style={styles.methodItem}>• Linear</Text>
-            <Text variant="bodySmall" style={styles.methodItem}>• Cubic Spline</Text>
-            <Text variant="bodySmall" style={styles.methodItem}>• Akima</Text>
-            <Text variant="bodySmall" style={styles.methodItem}>• PCHIP (Monotônico)</Text>
-            <Text variant="bodySmall" style={styles.methodItem}>• Smoothing Spline</Text>
-            <Text variant="bodySmall" style={styles.methodItem}>• Nelson-Siegel</Text>
-            <Text variant="bodySmall" style={styles.methodItem}>• Nelson-Siegel-Svensson</Text>
-          </View>
-        </Card.Content>
-      </Card>
+        </Surface>
+      </ScrollView>
     </View>
   );
 }
@@ -52,47 +194,68 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: COLORS.background,
+  },
+  scrollView: {
+    flex: 1,
+  },
+  scrollContent: {
     padding: 16,
+    paddingBottom: 32,
   },
-  card: {
-    backgroundColor: COLORS.surface,
-    marginBottom: 16,
-  },
-  title: {
-    marginBottom: 16,
-    color: COLORS.text,
-  },
-  chartPlaceholder: {
-    height: 200,
-    backgroundColor: '#f0f0f0',
-    borderRadius: 8,
+  emptyState: {
+    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#e0e0e0',
-    borderStyle: 'dashed',
-  },
-  placeholderText: {
-    color: COLORS.textSecondary,
-    textAlign: 'center',
-  },
-  placeholderSubtext: {
-    color: COLORS.textSecondary,
-    marginTop: 8,
-    fontSize: 11,
-    fontStyle: 'italic',
-  },
-  infoCard: {
+    margin: 16,
+    padding: 32,
+    borderRadius: 16,
     backgroundColor: COLORS.surface,
   },
-  infoTitle: {
-    marginBottom: 12,
-    color: COLORS.primary,
-  },
-  methodsList: {
-    gap: 4,
-  },
-  methodItem: {
+  emptyTitle: {
     color: COLORS.text,
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  emptyText: {
+    color: COLORS.textSecondary,
+    textAlign: 'center',
+    marginBottom: 24,
+  },
+  emptyButton: {
+    paddingHorizontal: 16,
+  },
+  chartCard: {
+    backgroundColor: COLORS.surface,
+    marginVertical: 8,
+  },
+  chartTitle: {
+    color: COLORS.text,
+    marginBottom: 8,
+  },
+  chartContainer: {
+    backgroundColor: '#ffffff',
+    borderRadius: 8,
+    padding: 8,
+  },
+  actionsCard: {
+    backgroundColor: COLORS.surface,
+    marginVertical: 8,
+  },
+  navigationButtons: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginTop: 16,
+    gap: 12,
+  },
+  navButton: {
+    flex: 1,
+  },
+  footer: {
+    alignItems: 'center',
+    paddingVertical: 24,
+    backgroundColor: 'transparent',
+  },
+  footerText: {
+    color: COLORS.textSecondary,
   },
 });
