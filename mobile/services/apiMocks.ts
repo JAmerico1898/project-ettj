@@ -99,6 +99,7 @@ function generateMockCurvePoints(method: SmoothingMethod): CurvePoint[] {
 
     points.push({
       business_days: bd,
+      years: bd / 252,
       rate: rate,
       rate_percent: rate * 100,
     });
@@ -113,7 +114,15 @@ function generateMockCurvePoints(method: SmoothingMethod): CurvePoint[] {
 export const MOCK_CURVE_RESPONSE: CurveResponse = {
   reference_date: '2024-12-02',
   method: 'nelson_siegel_svensson',
-  points: generateMockCurvePoints('nelson_siegel_svensson'),
+  method_name: 'Nelson-Siegel-Svensson',
+  method_type: 'parametric',
+  original_points: MOCK_DI1_CONTRACTS.map(c => ({
+    business_days: c.business_days,
+    years: c.business_days / 252,
+    rate: c.rate,
+    rate_percent: c.rate_percent,
+  })),
+  curve_points: generateMockCurvePoints('nelson_siegel_svensson'),
   parameters: {
     beta0: 0.1335,
     beta1: -0.0201,
@@ -122,6 +131,14 @@ export const MOCK_CURVE_RESPONSE: CurveResponse = {
     tau1: 1.5,
     tau2: 5.0,
   },
+  metrics: {
+    rmse: 0.0012,
+    mae: 0.0008,
+    max_error: 0.0025,
+    r_squared: 0.9987,
+  },
+  num_original_points: 17,
+  num_curve_points: 61,
 };
 
 /**
@@ -214,15 +231,32 @@ export const MOCK_API_INFO_RESPONSE: APIInfoResponse = {
  * Mock workflow response
  */
 export const MOCK_WORKFLOW_RESPONSE: WorkflowResponse = {
-  di1: MOCK_DI1_RESPONSE,
-  curve: MOCK_CURVE_RESPONSE,
+  reference_date: '2024-12-02',
+  actual_date: '2024-12-02',
+  method: 'nelson_siegel_svensson',
+  method_name: 'Nelson-Siegel-Svensson',
+  method_type: 'parametric',
+  contracts_count: MOCK_DI1_CONTRACTS.length,
+  original_points: MOCK_DI1_CONTRACTS.map(c => ({
+    business_days: c.business_days,
+    years: c.business_days / 252,
+    rate: c.rate,
+    rate_percent: c.rate_percent,
+  })),
+  curve_points: generateMockCurvePoints('nelson_siegel_svensson'),
+  parameters: {
+    beta0: 0.1335,
+    beta1: -0.0201,
+    beta2: 0.0156,
+    beta3: 0.0089,
+    tau1: 1.5,
+    tau2: 5.0,
+  },
   metrics: {
-    method: 'nelson_siegel_svensson',
     rmse: 0.0012,
     mae: 0.0008,
     max_error: 0.0025,
     r_squared: 0.9987,
-    computation_time_ms: 45,
   },
 };
 
@@ -230,13 +264,23 @@ export const MOCK_WORKFLOW_RESPONSE: WorkflowResponse = {
  * Mock compare methods response
  */
 export const MOCK_COMPARE_METHODS_RESPONSE: CompareMethodsResponse = {
-  di1: MOCK_DI1_RESPONSE,
+  reference_date: '2024-12-02',
+  actual_date: '2024-12-02',
+  contracts_count: MOCK_DI1_CONTRACTS.length,
+  original_points: MOCK_DI1_CONTRACTS.map(c => ({
+    business_days: c.business_days,
+    years: c.business_days / 252,
+    rate: c.rate,
+    rate_percent: c.rate_percent,
+  })),
   results: [
     {
       method: 'nelson_siegel',
-      curve: { ...MOCK_CURVE_RESPONSE, method: 'nelson_siegel' },
+      method_name: 'Nelson-Siegel',
+      method_type: 'parametric',
+      success: true,
+      curve_points: generateMockCurvePoints('nelson_siegel'),
       metrics: {
-        method: 'nelson_siegel',
         rmse: 0.0018,
         mae: 0.0012,
         r_squared: 0.9975,
@@ -244,9 +288,19 @@ export const MOCK_COMPARE_METHODS_RESPONSE: CompareMethodsResponse = {
     },
     {
       method: 'nelson_siegel_svensson',
-      curve: MOCK_CURVE_RESPONSE,
+      method_name: 'Nelson-Siegel-Svensson',
+      method_type: 'parametric',
+      success: true,
+      curve_points: generateMockCurvePoints('nelson_siegel_svensson'),
+      parameters: {
+        beta0: 0.1335,
+        beta1: -0.0201,
+        beta2: 0.0156,
+        beta3: 0.0089,
+        tau1: 1.5,
+        tau2: 5.0,
+      },
       metrics: {
-        method: 'nelson_siegel_svensson',
         rmse: 0.0012,
         mae: 0.0008,
         r_squared: 0.9987,
@@ -254,9 +308,11 @@ export const MOCK_COMPARE_METHODS_RESPONSE: CompareMethodsResponse = {
     },
     {
       method: 'cubic_spline',
-      curve: { ...MOCK_CURVE_RESPONSE, method: 'cubic_spline' },
+      method_name: 'Cubic Spline',
+      method_type: 'splines',
+      success: true,
+      curve_points: generateMockCurvePoints('cubic_spline'),
       metrics: {
-        method: 'cubic_spline',
         rmse: 0.0005,
         mae: 0.0003,
         r_squared: 0.9998,
@@ -266,16 +322,50 @@ export const MOCK_COMPARE_METHODS_RESPONSE: CompareMethodsResponse = {
 };
 
 /**
+ * Get method display name
+ */
+function getMethodName(method: SmoothingMethod): string {
+  const names: Record<SmoothingMethod, string> = {
+    linear: 'Linear',
+    cubic_spline: 'Cubic Spline',
+    akima: 'Akima',
+    pchip: 'PCHIP',
+    smoothing_spline: 'Smoothing Spline',
+    nelson_siegel: 'Nelson-Siegel',
+    nelson_siegel_svensson: 'Nelson-Siegel-Svensson',
+  };
+  return names[method];
+}
+
+/**
+ * Get method type
+ */
+function getMethodType(method: SmoothingMethod): string {
+  if (method === 'linear') return 'simple';
+  if (method.startsWith('nelson_siegel')) return 'parametric';
+  return 'splines';
+}
+
+/**
  * Create a mock curve response for a specific method
  */
 export function createMockCurveResponse(
   method: SmoothingMethod,
   referenceDate: string = '2024-12-02'
 ): CurveResponse {
+  const curvePoints = generateMockCurvePoints(method);
   return {
     reference_date: referenceDate,
     method: method,
-    points: generateMockCurvePoints(method),
+    method_name: getMethodName(method),
+    method_type: getMethodType(method),
+    original_points: MOCK_DI1_CONTRACTS.map(c => ({
+      business_days: c.business_days,
+      years: c.business_days / 252,
+      rate: c.rate,
+      rate_percent: c.rate_percent,
+    })),
+    curve_points: curvePoints,
     parameters: method.startsWith('nelson_siegel')
       ? {
           beta0: 0.1335,
@@ -286,6 +376,13 @@ export function createMockCurveResponse(
           ...(method === 'nelson_siegel_svensson' ? { tau2: 5.0 } : {}),
         }
       : undefined,
+    metrics: {
+      rmse: 0.0012,
+      mae: 0.0008,
+      r_squared: 0.9987,
+    },
+    num_original_points: MOCK_DI1_CONTRACTS.length,
+    num_curve_points: curvePoints.length,
   };
 }
 

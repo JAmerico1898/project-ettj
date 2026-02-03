@@ -46,6 +46,7 @@ export interface DI1SummaryResponse {
 // Single point on the yield curve
 export interface CurvePoint {
   business_days: number;
+  years: number;
   rate: number;
   rate_percent: number;
 }
@@ -62,8 +63,14 @@ export interface CurveRequest {
 export interface CurveResponse {
   reference_date: string;
   method: SmoothingMethod;
-  points: CurvePoint[];
-  parameters?: Record<string, number>;
+  method_name: string;
+  method_type: string;
+  original_points: CurvePoint[];
+  curve_points: CurvePoint[];
+  parameters?: Record<string, any>;
+  metrics: Record<string, number>;
+  num_original_points: number;
+  num_curve_points: number;
 }
 
 // Curve calculation metrics
@@ -126,11 +133,18 @@ export interface WorkflowRequest {
   max_business_days?: number;
 }
 
-// Workflow response - combined DI1 data and curve
+// Workflow response - combined DI1 data and curve (flat structure from backend)
 export interface WorkflowResponse {
-  di1: DI1Response;
-  curve: CurveResponse;
-  metrics?: CurveMetrics;
+  reference_date: string;
+  actual_date: string;
+  method: SmoothingMethod;
+  method_name: string;
+  method_type: string;
+  contracts_count: number;
+  original_points: CurvePoint[];
+  curve_points: CurvePoint[];
+  parameters?: Record<string, any>;
+  metrics: Record<string, number>;
 }
 
 // Compare methods request
@@ -144,14 +158,21 @@ export interface CompareMethodsRequest {
 // Single method comparison result
 export interface MethodComparisonResult {
   method: SmoothingMethod;
-  curve: CurveResponse;
-  metrics?: CurveMetrics;
+  method_name: string;
+  method_type: string;
+  success: boolean;
   error?: string;
+  curve_points?: CurvePoint[];
+  parameters?: Record<string, any>;
+  metrics?: Record<string, number>;
 }
 
 // Compare methods response
 export interface CompareMethodsResponse {
-  di1: DI1Response;
+  reference_date: string;
+  actual_date: string;
+  contracts_count: number;
+  original_points: CurvePoint[];
   results: MethodComparisonResult[];
 }
 

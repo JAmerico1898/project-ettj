@@ -40,11 +40,19 @@ export function useCurve(options: UseCurveOptions = {}) {
     /** Calculate a curve */
     calculateCurve: result.execute,
     /** The calculated curve points */
-    points: result.data?.points ?? [],
+    curvePoints: result.data?.curve_points ?? [],
+    /** The original data points */
+    originalPoints: result.data?.original_points ?? [],
     /** The method used */
     method: result.data?.method ?? null,
+    /** Method display name */
+    methodName: result.data?.method_name ?? null,
+    /** Method type */
+    methodType: result.data?.method_type ?? null,
     /** Model parameters (for parametric methods) */
     parameters: result.data?.parameters ?? null,
+    /** Metrics */
+    metrics: result.data?.metrics ?? null,
     /** Reference date */
     referenceDate: result.data?.reference_date ?? null,
   };
@@ -92,11 +100,19 @@ export function useSimpleCurve(options: UseCurveOptions = {}) {
     /** Calculate curve with individual parameters */
     calculate: result.execute,
     /** The calculated curve points */
-    points: result.data?.points ?? [],
+    curvePoints: result.data?.curve_points ?? [],
+    /** The original data points */
+    originalPoints: result.data?.original_points ?? [],
     /** The method used */
     method: result.data?.method ?? null,
+    /** Method display name */
+    methodName: result.data?.method_name ?? null,
+    /** Method type */
+    methodType: result.data?.method_type ?? null,
     /** Model parameters */
     parameters: result.data?.parameters ?? null,
+    /** Metrics */
+    metrics: result.data?.metrics ?? null,
     /** Reference date */
     referenceDate: result.data?.reference_date ?? null,
   };

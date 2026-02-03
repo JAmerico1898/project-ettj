@@ -48,20 +48,26 @@ export function useWorkflow(options: UseWorkflowOptions = {}) {
     ...result,
     /** Execute the workflow */
     executeWorkflow: result.execute,
-    /** DI1 data from the workflow */
-    di1: result.data?.di1 ?? null,
-    /** Curve data from the workflow */
-    curve: result.data?.curve ?? null,
     /** Calculation metrics */
     metrics: result.data?.metrics ?? null,
-    /** Contracts from DI1 data */
-    contracts: result.data?.di1?.contracts ?? [],
+    /** Original data points */
+    originalPoints: result.data?.original_points ?? [],
     /** Curve points */
-    points: result.data?.curve?.points ?? [],
+    curvePoints: result.data?.curve_points ?? [],
     /** Reference date */
-    referenceDate: result.data?.di1?.reference_date ?? null,
+    referenceDate: result.data?.reference_date ?? null,
     /** Actual date data was found for */
-    actualDate: result.data?.di1?.actual_date ?? null,
+    actualDate: result.data?.actual_date ?? null,
+    /** Method used */
+    method: result.data?.method ?? null,
+    /** Method display name */
+    methodName: result.data?.method_name ?? null,
+    /** Method type (parametric, splines, simple) */
+    methodType: result.data?.method_type ?? null,
+    /** Number of contracts */
+    contractsCount: result.data?.contracts_count ?? 0,
+    /** Parameters used */
+    parameters: result.data?.parameters ?? null,
   };
 }
 
@@ -104,13 +110,16 @@ export function useSimpleWorkflow(options: UseWorkflowOptions = {}) {
   return {
     ...result,
     executeWorkflow: result.execute,
-    di1: result.data?.di1 ?? null,
-    curve: result.data?.curve ?? null,
     metrics: result.data?.metrics ?? null,
-    contracts: result.data?.di1?.contracts ?? [],
-    points: result.data?.curve?.points ?? [],
-    referenceDate: result.data?.di1?.reference_date ?? null,
-    actualDate: result.data?.di1?.actual_date ?? null,
+    originalPoints: result.data?.original_points ?? [],
+    curvePoints: result.data?.curve_points ?? [],
+    referenceDate: result.data?.reference_date ?? null,
+    actualDate: result.data?.actual_date ?? null,
+    method: result.data?.method ?? null,
+    methodName: result.data?.method_name ?? null,
+    methodType: result.data?.method_type ?? null,
+    contractsCount: result.data?.contracts_count ?? 0,
+    parameters: result.data?.parameters ?? null,
   };
 }
 
@@ -150,8 +159,14 @@ export function useCompareMethods(options: UseCompareMethodsOptions = {}) {
     ...result,
     /** Execute comparison */
     compareMethods: result.execute,
-    /** DI1 data used for comparison */
-    di1: result.data?.di1 ?? null,
+    /** Reference date */
+    referenceDate: result.data?.reference_date ?? null,
+    /** Actual date */
+    actualDate: result.data?.actual_date ?? null,
+    /** Number of contracts */
+    contractsCount: result.data?.contracts_count ?? 0,
+    /** Original data points */
+    originalPoints: result.data?.original_points ?? [],
     /** Comparison results for each method */
     results: result.data?.results ?? [],
     /** Number of methods compared */
@@ -159,12 +174,12 @@ export function useCompareMethods(options: UseCompareMethodsOptions = {}) {
     /** Get result for a specific method */
     getMethodResult: (method: SmoothingMethod) =>
       result.data?.results?.find((r) => r.method === method) ?? null,
-    /** Get the best method by RMSE */
-    bestMethod: result.data?.results?.reduce((best, current) => {
+    /** Get the best method by RMSE (only successful results) */
+    bestMethod: result.data?.results?.filter(r => r.success)?.reduce((best, current) => {
       if (!best || !best.metrics?.rmse) return current;
       if (!current.metrics?.rmse) return best;
       return current.metrics.rmse < best.metrics.rmse ? current : best;
-    }, result.data?.results?.[0] ?? null),
+    }, result.data?.results?.filter(r => r.success)?.[0] ?? null) ?? null,
   };
 }
 
@@ -210,16 +225,19 @@ export function useSimpleCompareMethods(options: UseCompareMethodsOptions = {}) 
   return {
     ...result,
     compare: result.execute,
-    di1: result.data?.di1 ?? null,
+    referenceDate: result.data?.reference_date ?? null,
+    actualDate: result.data?.actual_date ?? null,
+    contractsCount: result.data?.contracts_count ?? 0,
+    originalPoints: result.data?.original_points ?? [],
     results: result.data?.results ?? [],
     methodCount: result.data?.results?.length ?? 0,
     getMethodResult: (method: SmoothingMethod) =>
       result.data?.results?.find((r) => r.method === method) ?? null,
-    bestMethod: result.data?.results?.reduce((best, current) => {
+    bestMethod: result.data?.results?.filter(r => r.success)?.reduce((best, current) => {
       if (!best || !best.metrics?.rmse) return current;
       if (!current.metrics?.rmse) return best;
       return current.metrics.rmse < best.metrics.rmse ? current : best;
-    }, result.data?.results?.[0] ?? null),
+    }, result.data?.results?.filter(r => r.success)?.[0] ?? null) ?? null,
   };
 }
 
@@ -249,12 +267,15 @@ export function useWorkflowOnMount(
   return {
     ...result,
     executeWorkflow: result.execute,
-    di1: result.data?.di1 ?? null,
-    curve: result.data?.curve ?? null,
     metrics: result.data?.metrics ?? null,
-    contracts: result.data?.di1?.contracts ?? [],
-    points: result.data?.curve?.points ?? [],
-    referenceDate: result.data?.di1?.reference_date ?? null,
-    actualDate: result.data?.di1?.actual_date ?? null,
+    originalPoints: result.data?.original_points ?? [],
+    curvePoints: result.data?.curve_points ?? [],
+    referenceDate: result.data?.reference_date ?? null,
+    actualDate: result.data?.actual_date ?? null,
+    method: result.data?.method ?? null,
+    methodName: result.data?.method_name ?? null,
+    methodType: result.data?.method_type ?? null,
+    contractsCount: result.data?.contracts_count ?? 0,
+    parameters: result.data?.parameters ?? null,
   };
 }
