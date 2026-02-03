@@ -172,15 +172,49 @@ export function shouldRetry(error: unknown): boolean {
  * Portuguese error messages for common scenarios
  */
 export const ERROR_MESSAGES = {
+  // Network errors
   NETWORK_OFFLINE: 'Você está offline. Conecte-se à internet para continuar.',
   NETWORK_ERROR: 'Erro de conexão. Verifique sua internet e tente novamente.',
   TIMEOUT: 'A requisição demorou muito. Tente novamente.',
   SERVER_ERROR: 'Erro no servidor. Nossa equipe foi notificada.',
+
+  // Validation errors
   VALIDATION_ERROR: 'Os dados informados são inválidos.',
+  INSUFFICIENT_DATA: 'Dados insuficientes para calcular a curva. Mínimo de 3 contratos necessários.',
+  CORRUPTED_DATA: 'Os dados recebidos estão corrompidos. Tente novamente.',
+
+  // Date errors
   NOT_FOUND: 'Dados não encontrados para a data selecionada.',
   WEEKEND_DATE: 'A data selecionada é um fim de semana. Selecione um dia útil.',
   HOLIDAY_DATE: 'A data selecionada é um feriado. Selecione um dia útil.',
   FUTURE_DATE: 'A data selecionada é no futuro. Selecione uma data passada.',
+  DATE_TOO_OLD: 'A data selecionada é muito antiga. Dados não disponíveis.',
   NO_DATA: 'Não há dados disponíveis para a data selecionada.',
+
+  // Calculation errors
+  CALCULATION_FAILED: 'Falha no cálculo da curva. Verifique os parâmetros e tente novamente.',
+  INVALID_PARAMETERS: 'Parâmetros inválidos para o método selecionado.',
+
+  // Cache errors
+  CACHE_ERROR: 'Erro ao acessar dados em cache. Usando dados do servidor.',
+  CACHE_EXPIRED: 'Dados em cache expirados. Atualizando...',
+
+  // Generic errors
   UNKNOWN: 'Um erro inesperado ocorreu. Tente novamente.',
+  RETRY_FAILED: 'Não foi possível completar a operação após várias tentativas.',
 } as const;
+
+/**
+ * Error code type for type-safe access
+ */
+export type ErrorMessageCode = keyof typeof ERROR_MESSAGES;
+
+/**
+ * Get error message by code with fallback
+ */
+export function getMessageByCode(code: string): string {
+  if (code in ERROR_MESSAGES) {
+    return ERROR_MESSAGES[code as ErrorMessageCode];
+  }
+  return ERROR_MESSAGES.UNKNOWN;
+}

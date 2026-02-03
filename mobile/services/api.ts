@@ -1,13 +1,21 @@
 /**
  * API client for ETTJ backend
- * Features: retry logic, network checks, interceptors, comprehensive error handling
+ * Features: retry logic, network checks, interceptors, comprehensive error handling, caching
  */
 
 import axios, { AxiosInstance, AxiosError, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
 import { API_CONFIG, API_ENDPOINTS } from './apiConfig';
-import { handleApiError, getErrorMessage as getErrorMsg } from './apiErrors';
+import { handleApiError, getErrorMessage as getErrorMsg, ERROR_MESSAGES } from './apiErrors';
 import { checkInternetConnection, sleep } from '../utils/network';
-import { NetworkError, ApiError, isRetryableError } from '../types/errors';
+import { NetworkError, ApiError, isRetryableError, ValidationError } from '../types/errors';
+import { cacheService, CacheKeys, CacheTTL } from './cacheService';
+import { errorLogger } from './errorLogger';
+import {
+  validateDI1Response,
+  validateCurveResponse,
+  validateWorkflowResponse,
+  sanitizeNumericValues,
+} from '../utils/validationUtils';
 import {
   DI1Response,
   DI1SummaryResponse,
@@ -36,6 +44,18 @@ interface RequestMeta {
  */
 interface ExtendedRequestConfig extends InternalAxiosRequestConfig {
   meta?: RequestMeta;
+}
+
+/**
+ * Cache options for API methods
+ */
+interface CacheOptions {
+  /** Whether to use cache (default: false) */
+  useCache?: boolean;
+  /** TTL in milliseconds (default: 5 minutes) */
+  ttl?: number;
+  /** Force refresh even if cache exists */
+  forceRefresh?: boolean;
 }
 
 /**
@@ -193,8 +213,27 @@ class ApiClient {
    * Fetch DI1 futures data for a specific date
    * @param date - Optional reference date in YYYY-MM-DD format
    * @param maxBusinessDays - Optional max business days filter (default 1260 = 5 years)
+   * @param cacheOptions - Optional caching configuration
    */
-  async fetchDI1Data(date?: string, maxBusinessDays?: number): Promise<DI1Response> {
+  async fetchDI1Data(
+    date?: string,
+    maxBusinessDays?: number,
+    cacheOptions: CacheOptions = {}
+  ): Promise<DI1Response> {
+    const { useCache = false, ttl = CacheTTL.MEDIUM, forceRefresh = false } = cacheOptions;
+    const cacheKey = CacheKeys.di1Data(date || 'latest');
+
+    // Check cache first
+    if (useCache && !forceRefresh) {
+      const cached = await cacheService.get<DI1Response>(cacheKey);
+      if (cached) {
+        if (API_CONFIG.enableLogging) {
+          console.log('[API] Using cached DI1 data');
+        }
+        return cached;
+      }
+    }
+
     const params: Record<string, string | number> = {};
     if (date) {
       params.date = date;
@@ -202,31 +241,87 @@ class ApiClient {
     if (maxBusinessDays !== undefined) {
       params.max_business_days = maxBusinessDays;
     }
+
     const response = await this.client.get<DI1Response>(API_ENDPOINTS.DI1, { params });
-    return response.data;
+    const data = response.data;
+
+    // Validate response
+    const validation = validateDI1Response(data);
+    if (!validation.isValid) {
+      errorLogger.log('VALIDATION_ERROR', 'Invalid DI1 response', undefined, {
+        errors: validation.errors,
+      });
+      throw new ValidationError(ERROR_MESSAGES.CORRUPTED_DATA, undefined, {
+        validationErrors: validation.errors,
+      });
+    }
+
+    // Sanitize and cache
+    const sanitized = sanitizeNumericValues(data);
+    if (useCache) {
+      await cacheService.set(cacheKey, sanitized, ttl);
+    }
+
+    return sanitized;
   }
 
   /**
    * Fetch DI1 summary statistics
    * @param date - Optional reference date in YYYY-MM-DD format
+   * @param cacheOptions - Optional caching configuration
    */
-  async fetchDI1Summary(date?: string): Promise<DI1SummaryResponse> {
+  async fetchDI1Summary(date?: string, cacheOptions: CacheOptions = {}): Promise<DI1SummaryResponse> {
+    const { useCache = false, ttl = CacheTTL.MEDIUM, forceRefresh = false } = cacheOptions;
+    const cacheKey = CacheKeys.di1Summary(date || 'latest');
+
+    // Check cache first
+    if (useCache && !forceRefresh) {
+      const cached = await cacheService.get<DI1SummaryResponse>(cacheKey);
+      if (cached) {
+        return cached;
+      }
+    }
+
     const params: Record<string, string> = {};
     if (date) {
       params.date = date;
     }
     const response = await this.client.get<DI1SummaryResponse>(API_ENDPOINTS.DI1_SUMMARY, { params });
-    return response.data;
+    const data = sanitizeNumericValues(response.data);
+
+    if (useCache) {
+      await cacheService.set(cacheKey, data, ttl);
+    }
+
+    return data;
   }
 
   // ==================== Methods Endpoint ====================
 
   /**
    * Get available smoothing methods
+   * @param cacheOptions - Optional caching configuration
    */
-  async getAvailableMethods(): Promise<MethodInfo[]> {
+  async getAvailableMethods(cacheOptions: CacheOptions = {}): Promise<MethodInfo[]> {
+    const { useCache = true, ttl = CacheTTL.HOUR, forceRefresh = false } = cacheOptions;
+    const cacheKey = CacheKeys.methods();
+
+    // Methods rarely change, so cache by default
+    if (useCache && !forceRefresh) {
+      const cached = await cacheService.get<MethodInfo[]>(cacheKey);
+      if (cached) {
+        return cached;
+      }
+    }
+
     const response = await this.client.get<MethodInfo[]>(API_ENDPOINTS.METHODS);
-    return response.data;
+    const data = response.data;
+
+    if (useCache) {
+      await cacheService.set(cacheKey, data, ttl);
+    }
+
+    return data;
   }
 
   // ==================== Curve Calculation ====================
@@ -234,10 +329,40 @@ class ApiClient {
   /**
    * Calculate smoothed yield curve
    * @param request - Curve calculation request
+   * @param cacheOptions - Optional caching configuration
    */
-  async calculateCurve(request: CurveRequest): Promise<CurveResponse> {
+  async calculateCurve(request: CurveRequest, cacheOptions: CacheOptions = {}): Promise<CurveResponse> {
+    const { useCache = false, ttl = CacheTTL.MEDIUM, forceRefresh = false } = cacheOptions;
+    const cacheKey = CacheKeys.curveData(request.reference_date, request.method);
+
+    // Check cache first
+    if (useCache && !forceRefresh) {
+      const cached = await cacheService.get<CurveResponse>(cacheKey);
+      if (cached) {
+        return cached;
+      }
+    }
+
     const response = await this.client.post<CurveResponse>(API_ENDPOINTS.CURVE, request);
-    return response.data;
+    const data = response.data;
+
+    // Validate response
+    const validation = validateCurveResponse(data);
+    if (!validation.isValid) {
+      errorLogger.log('VALIDATION_ERROR', 'Invalid curve response', undefined, {
+        errors: validation.errors,
+      });
+      throw new ValidationError(ERROR_MESSAGES.CORRUPTED_DATA, undefined, {
+        validationErrors: validation.errors,
+      });
+    }
+
+    const sanitized = sanitizeNumericValues(data);
+    if (useCache) {
+      await cacheService.set(cacheKey, sanitized, ttl);
+    }
+
+    return sanitized;
   }
 
   // ==================== Workflow Endpoints ====================
@@ -245,10 +370,43 @@ class ApiClient {
   /**
    * Execute complete workflow: fetch data + calculate curve
    * @param request - Workflow request parameters
+   * @param cacheOptions - Optional caching configuration
    */
-  async workflow(request: WorkflowRequest): Promise<WorkflowResponse> {
+  async workflow(request: WorkflowRequest, cacheOptions: CacheOptions = {}): Promise<WorkflowResponse> {
+    const { useCache = false, ttl = CacheTTL.MEDIUM, forceRefresh = false } = cacheOptions;
+    const cacheKey = CacheKeys.workflow(request.date || 'latest', request.method);
+
+    // Check cache first
+    if (useCache && !forceRefresh) {
+      const cached = await cacheService.get<WorkflowResponse>(cacheKey);
+      if (cached) {
+        if (API_CONFIG.enableLogging) {
+          console.log('[API] Using cached workflow data');
+        }
+        return cached;
+      }
+    }
+
     const response = await this.client.post<WorkflowResponse>(API_ENDPOINTS.WORKFLOW, request);
-    return response.data;
+    const data = response.data;
+
+    // Validate response
+    const validation = validateWorkflowResponse(data);
+    if (!validation.isValid) {
+      errorLogger.log('VALIDATION_ERROR', 'Invalid workflow response', undefined, {
+        errors: validation.errors,
+      });
+      throw new ValidationError(ERROR_MESSAGES.CORRUPTED_DATA, undefined, {
+        validationErrors: validation.errors,
+      });
+    }
+
+    const sanitized = sanitizeNumericValues(data);
+    if (useCache) {
+      await cacheService.set(cacheKey, sanitized, ttl);
+    }
+
+    return sanitized;
   }
 
   /**
@@ -284,6 +442,30 @@ class ApiClient {
    */
   setTimeout(timeout: number): void {
     this.client.defaults.timeout = timeout;
+  }
+
+  // ==================== Cache Management ====================
+
+  /**
+   * Clear all API cache
+   */
+  async clearCache(): Promise<void> {
+    await cacheService.clear();
+  }
+
+  /**
+   * Clear expired cache entries
+   * @returns Number of entries removed
+   */
+  async cleanExpiredCache(): Promise<number> {
+    return cacheService.cleanExpired();
+  }
+
+  /**
+   * Get cache statistics
+   */
+  async getCacheStats() {
+    return cacheService.getStats();
   }
 
   // ==================== Backward Compatibility ====================

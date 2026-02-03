@@ -43,3 +43,12 @@ export {
   type UseWorkflowOptions,
   type UseCompareMethodsOptions,
 } from './useWorkflow';
+
+// Network status hooks
+export {
+  useNetworkStatus,
+  useIsOnline,
+  useOfflineDetection,
+  type NetworkStatus,
+  type UseNetworkStatusReturn,
+} from './useNetworkStatus';

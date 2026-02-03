@@ -28,3 +28,8 @@ export { SettingsSection } from './SettingsSection';
 export { SettingItem } from './SettingItem';
 export { ThemeSelector } from './ThemeSelector';
 export { ApiConfig } from './ApiConfig';
+
+// Error handling components
+export { ErrorBoundary, withErrorBoundary } from './ErrorBoundary';
+export { OfflineBanner, OfflineIndicator } from './OfflineBanner';
+export { NetworkStatusBar, NetworkDot, NetworkStatusText } from './NetworkStatusBar';
