@@ -47,7 +47,9 @@ export function ChartActions({
           document.body.removeChild(link);
           Alert.alert('Sucesso', 'Imagem baixada.');
         } catch (webError) {
-          console.error('Web download error:', webError);
+          if (__DEV__) {
+            console.error('Web download error:', webError);
+          }
           // Fallback: open in new tab
           window.open(uri, '_blank');
           Alert.alert('Info', 'Imagem aberta em nova aba. Use o botao direito para salvar.');
@@ -69,7 +71,9 @@ export function ChartActions({
         );
       }
     } catch (error) {
-      console.error('Error sharing image:', error);
+      if (__DEV__) {
+        console.error('Error sharing image:', error);
+      }
       Alert.alert('Erro', `Nao foi possivel compartilhar a imagem: ${error}`);
     } finally {
       setIsSharing(false);
@@ -112,7 +116,9 @@ export function ChartActions({
         );
       }
     } catch (error) {
-      console.error('Error exporting CSV:', error);
+      if (__DEV__) {
+        console.error('Error exporting CSV:', error);
+      }
       Alert.alert('Erro', 'Nao foi possivel exportar os dados.');
     } finally {
       setIsExporting(false);

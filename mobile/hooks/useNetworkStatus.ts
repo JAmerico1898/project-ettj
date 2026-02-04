@@ -96,7 +96,9 @@ export function useNetworkStatus(pollingInterval: number = 5000): UseNetworkStat
         setLastUpdated(new Date());
       }
     } catch (error) {
-      console.warn('[useNetworkStatus] Failed to refresh network status:', error);
+      if (__DEV__) {
+        console.warn('[useNetworkStatus] Failed to refresh network status:', error);
+      }
       // On error, assume connected to avoid false negatives
       if (mountedRef.current) {
         setStatus(prev => ({

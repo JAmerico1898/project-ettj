@@ -2,7 +2,7 @@
  * Sortable table for DI1 contracts
  */
 
-import React from 'react';
+import React, { memo, useCallback } from 'react';
 import { View, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { DataTable, Text } from 'react-native-paper';
 import { COLORS } from '../constants/config';
@@ -17,7 +17,7 @@ interface ContractsTableProps {
   selectedContract?: DI1Contract | null;
 }
 
-export function ContractsTable({
+function ContractsTableComponent({
   contracts,
   sortConfig,
   onSort,
@@ -160,6 +160,17 @@ function SortableHeader({
     </DataTable.Title>
   );
 }
+
+// Memoized component to prevent unnecessary re-renders
+export const ContractsTable = memo(ContractsTableComponent, (prevProps, nextProps) => {
+  // Custom comparison for performance
+  return (
+    prevProps.contracts === nextProps.contracts &&
+    prevProps.sortConfig.key === nextProps.sortConfig.key &&
+    prevProps.sortConfig.direction === nextProps.sortConfig.direction &&
+    prevProps.selectedContract?.ticker === nextProps.selectedContract?.ticker
+  );
+});
 
 const styles = StyleSheet.create({
   table: {

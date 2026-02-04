@@ -235,9 +235,15 @@ export function DatePicker({
 
   // Native mobile UI
   return (
-    <View style={styles.container}>
+    <View style={styles.container} accessibilityRole="none">
       <View style={styles.inputRow}>
-        <Pressable style={styles.inputWrapper} onPress={openPicker}>
+        <Pressable
+          style={styles.inputWrapper}
+          onPress={openPicker}
+          accessibilityRole="button"
+          accessibilityLabel={`Selecionar ${label}`}
+          accessibilityHint="Toque para abrir o seletor de data"
+        >
           <TextInput
             label={label}
             value={textValue}
@@ -250,11 +256,14 @@ export function DatePicker({
             disabled={disabled}
             error={!!error}
             mode="outlined"
+            accessibilityLabel={`Campo de data ${label}`}
+            accessibilityHint="Digite a data no formato dia barra mes barra ano"
             right={
               <TextInput.Icon
                 icon="calendar"
                 onPress={openPicker}
                 disabled={disabled}
+                accessibilityLabel="Abrir calendario"
               />
             }
             style={styles.input}
@@ -266,6 +275,8 @@ export function DatePicker({
             size={24}
             onPress={handleClear}
             style={styles.clearIconButton}
+            accessibilityLabel="Limpar data"
+            accessibilityHint="Toque para remover a data selecionada"
           />
         )}
       </View>

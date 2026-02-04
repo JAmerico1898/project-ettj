@@ -56,7 +56,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
       const methodList = await api.getMethods();
       setMethods(methodList);
     } catch (err) {
-      console.error('Failed to load methods:', err);
+      if (__DEV__) {
+        console.error('Failed to load methods:', err);
+      }
     }
   }, []);
 

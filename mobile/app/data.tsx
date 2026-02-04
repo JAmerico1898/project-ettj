@@ -259,7 +259,9 @@ export default function DataScreen() {
         );
       }
     } catch (error) {
-      console.error('Error exporting CSV:', error);
+      if (__DEV__) {
+        console.error('Error exporting CSV:', error);
+      }
       Alert.alert('Erro', 'Nao foi possivel exportar os dados.');
     } finally {
       setIsExporting(false);
@@ -293,7 +295,9 @@ export default function DataScreen() {
         Alert.alert('Erro', 'Nao foi possivel copiar os dados.');
       }
     } catch (error) {
-      console.error('Error copying to clipboard:', error);
+      if (__DEV__) {
+        console.error('Error copying to clipboard:', error);
+      }
       Alert.alert('Erro', 'Nao foi possivel copiar os dados.');
     } finally {
       setIsCopying(false);
@@ -457,6 +461,9 @@ export default function DataScreen() {
             disabled={isExporting || isCopying}
             icon="file-export"
             style={styles.actionButton}
+            accessibilityLabel="Exportar dados para CSV"
+            accessibilityHint="Exporta os dados da tabela para um arquivo CSV"
+            accessibilityRole="button"
           >
             Exportar CSV
           </Button>
@@ -467,6 +474,9 @@ export default function DataScreen() {
             disabled={isExporting || isCopying}
             icon="content-copy"
             style={styles.actionButton}
+            accessibilityLabel="Copiar dados"
+            accessibilityHint="Copia os dados da tabela para a area de transferencia"
+            accessibilityRole="button"
           >
             Copiar
           </Button>

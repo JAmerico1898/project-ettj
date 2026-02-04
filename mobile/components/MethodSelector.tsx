@@ -71,6 +71,7 @@ export function MethodSelector({
     const isSelected = value === method;
     const category = METHOD_TO_CATEGORY[method];
     const accentColor = CATEGORY_ACCENT[category];
+    const methodName = METHOD_DISPLAY_NAMES[method];
 
     return (
       <View key={method} style={styles.methodChipContainer}>
@@ -82,6 +83,10 @@ export function MethodSelector({
             isSelected && { backgroundColor: accentColor },
             disabled && styles.disabledChip,
           ]}
+          accessibilityRole="radio"
+          accessibilityState={{ selected: isSelected, disabled }}
+          accessibilityLabel={`Metodo ${methodName}`}
+          accessibilityHint={isSelected ? 'Selecionado' : 'Toque para selecionar este metodo'}
         >
           <Text
             style={[
@@ -90,7 +95,7 @@ export function MethodSelector({
               disabled && styles.disabledText,
             ]}
           >
-            {METHOD_DISPLAY_NAMES[method]}
+            {methodName}
           </Text>
         </Pressable>
         {showInfo && (
@@ -99,6 +104,8 @@ export function MethodSelector({
             size={18}
             onPress={() => toggleMethodInfo(method)}
             style={styles.infoButton}
+            accessibilityLabel={`Informacoes sobre ${methodName}`}
+            accessibilityHint={expandedMethod === method ? 'Toque para ocultar detalhes' : 'Toque para ver detalhes'}
           />
         )}
       </View>

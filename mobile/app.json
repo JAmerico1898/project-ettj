@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "ETTJ",
+    "name": "ETTJ DI1",
     "slug": "ettj-mobile",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-    "userInterfaceStyle": "light",
+    "userInterfaceStyle": "automatic",
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
@@ -16,14 +16,26 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.coppead.ettj"
+      "bundleIdentifier": "com.coppead.ettj",
+      "buildNumber": "1",
+      "infoPlist": {
+        "NSAppTransportSecurity": {
+          "NSAllowsArbitraryLoads": false,
+          "NSAllowsLocalNetworking": true
+        }
+      }
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#1976D2"
       },
-      "package": "com.coppead.ettj"
+      "package": "com.coppead.ettj",
+      "versionCode": 1,
+      "permissions": [
+        "INTERNET",
+        "ACCESS_NETWORK_STATE"
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png",
@@ -32,6 +44,18 @@
     "scheme": "ettj",
     "plugins": [
       "expo-router"
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "ettj-di1-coppead"
+      }
+    },
+    "owner": "coppead",
+    "runtimeVersion": {
+      "policy": "sdkVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/ettj-di1-coppead"
+    }
   }
 }

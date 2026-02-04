@@ -114,10 +114,9 @@ class APIInfoResponse(BaseModel):
 
 class WorkflowRequest(BaseModel):
     """Request for end-to-end workflow (fetch DI1 + calculate curve)."""
-    date: str = Field(
-        ...,
-        description="Reference date in YYYY-MM-DD format",
-        pattern=r"^\d{4}-\d{2}-\d{2}$",
+    date: Optional[str] = Field(
+        None,
+        description="Reference date in YYYY-MM-DD format. If not provided, uses last business day.",
     )
     method: SmoothingMethod = Field(
         ...,
@@ -132,6 +131,12 @@ class WorkflowRequest(BaseModel):
     parameters: Optional[Dict[str, Any]] = Field(
         None,
         description="Method-specific parameters (e.g., smoothing for smoothing_spline)",
+    )
+    smoothing_parameter: Optional[float] = Field(
+        None,
+        ge=0,
+        le=1,
+        description="Smoothing parameter for smoothing spline (alternative to parameters dict)",
     )
     num_points: int = Field(
         1260,
@@ -173,10 +178,9 @@ class DI1SummaryResponse(BaseModel):
 
 class CompareMethodsRequest(BaseModel):
     """Request for comparing multiple methods."""
-    date: str = Field(
-        ...,
-        description="Reference date in YYYY-MM-DD format",
-        pattern=r"^\d{4}-\d{2}-\d{2}$",
+    date: Optional[str] = Field(
+        None,
+        description="Reference date in YYYY-MM-DD format. If not provided, uses last business day.",
     )
     methods: List[SmoothingMethod] = Field(
         ...,

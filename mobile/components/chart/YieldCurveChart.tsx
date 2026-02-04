@@ -2,7 +2,7 @@
  * Main yield curve chart component using react-native-chart-kit
  */
 
-import React from 'react';
+import React, { memo, useMemo } from 'react';
 import { View, StyleSheet, Dimensions } from 'react-native';
 import { LineChart } from 'react-native-chart-kit';
 import { Circle } from 'react-native-svg';
@@ -24,7 +24,7 @@ interface YieldCurveChartProps {
   yMode: YAxisMode;
 }
 
-export function YieldCurveChart({
+function YieldCurveChartComponent({
   curvePoints,
   originalPoints,
   xMode,
@@ -168,6 +168,40 @@ export function YieldCurveChart({
     </View>
   );
 }
+
+// Memoized component with custom comparison for performance
+export const YieldCurveChart = memo(YieldCurveChartComponent, (prevProps, nextProps) => {
+  // Compare array lengths first (quick check)
+  if (
+    prevProps.curvePoints.length !== nextProps.curvePoints.length ||
+    prevProps.originalPoints.length !== nextProps.originalPoints.length
+  ) {
+    return false;
+  }
+
+  // Compare display modes
+  if (prevProps.xMode !== nextProps.xMode || prevProps.yMode !== nextProps.yMode) {
+    return false;
+  }
+
+  // Deep comparison of points (if arrays are same reference, skip)
+  if (prevProps.curvePoints !== nextProps.curvePoints) {
+    // Compare first and last points as a heuristic
+    const prevFirst = prevProps.curvePoints[0];
+    const nextFirst = nextProps.curvePoints[0];
+    const prevLast = prevProps.curvePoints[prevProps.curvePoints.length - 1];
+    const nextLast = nextProps.curvePoints[nextProps.curvePoints.length - 1];
+
+    if (
+      prevFirst?.rate !== nextFirst?.rate ||
+      prevLast?.rate !== nextLast?.rate
+    ) {
+      return false;
+    }
+  }
+
+  return true;
+});
 
 const styles = StyleSheet.create({
   container: {

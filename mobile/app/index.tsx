@@ -58,6 +58,9 @@ export default function HomeScreen() {
           onPress={() => router.push('/settings')}
           style={styles.headerButton}
           hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+          accessibilityLabel="Configuracoes"
+          accessibilityHint="Toque para abrir as configuracoes do aplicativo"
+          accessibilityRole="button"
         >
           <MaterialCommunityIcons name="cog" size={24} color="#fff" />
         </TouchableOpacity>
@@ -162,7 +165,9 @@ export default function HomeScreen() {
         }
       }
     } catch (error) {
-      console.warn('Failed to load preferences:', error);
+      if (__DEV__) {
+        console.warn('Failed to load preferences:', error);
+      }
     } finally {
       setPreferencesLoaded(true);
     }
@@ -185,7 +190,9 @@ export default function HomeScreen() {
         ),
       ]);
     } catch (error) {
-      console.warn('Failed to save preferences:', error);
+      if (__DEV__) {
+        console.warn('Failed to save preferences:', error);
+      }
     }
   };
 
@@ -403,6 +410,9 @@ export default function HomeScreen() {
             icon="chart-line"
             loading={isLoading}
             disabled={isLoading}
+            accessibilityLabel="Calcular curva de juros"
+            accessibilityHint="Toque para calcular a curva de juros com os parametros selecionados"
+            accessibilityRole="button"
           >
             Calcular Curva
           </Button>
@@ -413,6 +423,9 @@ export default function HomeScreen() {
             style={styles.secondaryButton}
             icon="database"
             disabled={isLoading}
+            accessibilityLabel="Ver dados historicos"
+            accessibilityHint="Toque para visualizar os contratos DI1"
+            accessibilityRole="button"
           >
             Ver Dados Históricos
           </Button>

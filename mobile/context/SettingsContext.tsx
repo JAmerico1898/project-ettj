@@ -93,7 +93,9 @@ export function SettingsProvider({ children }: SettingsProviderProps) {
       const loaded = await loadSettings();
       setSettings(loaded);
     } catch (error) {
-      console.error('Failed to load settings:', error);
+      if (__DEV__) {
+        console.error('Failed to load settings:', error);
+      }
     } finally {
       setIsLoading(false);
     }

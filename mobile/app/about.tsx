@@ -19,7 +19,9 @@ export default function AboutScreen() {
         await Linking.openURL(url);
       }
     } catch (error) {
-      console.error('Failed to open URL:', error);
+      if (__DEV__) {
+        console.error('Failed to open URL:', error);
+      }
     }
   };
 

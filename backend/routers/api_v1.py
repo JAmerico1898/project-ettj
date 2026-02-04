@@ -251,8 +251,10 @@ async def workflow(request: WorkflowRequest) -> WorkflowResponse:
     Useful for mobile apps to minimize round trips.
     """
     try:
-        # Validate and parse date string
-        parsed_date = validate_date_string(request.date)
+        # Parse date if provided, otherwise use None for latest data
+        parsed_date = None
+        if request.date:
+            parsed_date = validate_date_string(request.date)
 
         # Fetch DI1 data
         data = di1_service.fetch_di1_data(parsed_date, request.max_business_days)
@@ -291,8 +293,10 @@ async def workflow(request: WorkflowRequest) -> WorkflowResponse:
             for c in contracts
         ]
 
-        # Prepare parameters
-        params = request.parameters or {}
+        # Prepare parameters (merge smoothing_parameter into params dict)
+        params = request.parameters.copy() if request.parameters else {}
+        if request.smoothing_parameter is not None:
+            params['smoothing'] = request.smoothing_parameter
 
         # Calculate curve
         result = calculate_curve(
@@ -339,8 +343,10 @@ async def compare_methods(request: CompareMethodsRequest) -> CompareMethodsRespo
     educational comparison of different approaches.
     """
     try:
-        # Validate and parse date string
-        parsed_date = validate_date_string(request.date)
+        # Parse date if provided, otherwise use None for latest data
+        parsed_date = None
+        if request.date:
+            parsed_date = validate_date_string(request.date)
 
         # Fetch DI1 data
         data = di1_service.fetch_di1_data(parsed_date, request.max_business_days)

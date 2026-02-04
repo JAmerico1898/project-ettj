@@ -46,7 +46,7 @@ export const API_ENDPOINTS = {
   METHODS: '/api/methods',
   CURVE: '/api/curve',
   WORKFLOW: '/api/workflow',
-  COMPARE_METHODS: '/api/compare',
+  COMPARE_METHODS: '/api/curve/compare',
 } as const;
 
 /**

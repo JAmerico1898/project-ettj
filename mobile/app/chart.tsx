@@ -53,6 +53,9 @@ export default function ChartScreen() {
             onPress={() => router.push('/')}
             style={styles.emptyButton}
             icon="home"
+            accessibilityLabel="Voltar ao inicio"
+            accessibilityHint="Retornar a tela inicial do aplicativo"
+            accessibilityRole="button"
           >
             Voltar ao Inicio
           </Button>
@@ -82,7 +85,9 @@ export default function ChartScreen() {
   // Handle share image
   const handleShareImage = async (): Promise<string | null> => {
     if (!chartRef.current) {
-      console.error('Chart ref is null');
+      if (__DEV__) {
+        console.error('Chart ref is null');
+      }
       return null;
     }
 
@@ -94,10 +99,12 @@ export default function ChartScreen() {
       });
       return uri;
     } catch (error) {
-      console.error('Error capturing chart:', error);
-      // On web, try alternative approach
-      if (Platform.OS === 'web') {
-        console.log('Trying alternative web capture...');
+      if (__DEV__) {
+        console.error('Error capturing chart:', error);
+        // On web, try alternative approach
+        if (Platform.OS === 'web') {
+          console.log('Trying alternative web capture...');
+        }
       }
       return null;
     }
@@ -174,6 +181,9 @@ export default function ChartScreen() {
             onPress={() => router.push('/')}
             icon="arrow-left"
             style={styles.navButton}
+            accessibilityLabel="Calcular nova curva"
+            accessibilityHint="Voltar a tela inicial para calcular uma nova curva"
+            accessibilityRole="button"
           >
             Nova Curva
           </Button>

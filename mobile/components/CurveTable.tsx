@@ -2,7 +2,7 @@
  * Sortable table for curve points
  */
 
-import React from 'react';
+import React, { memo } from 'react';
 import { StyleSheet, ScrollView } from 'react-native';
 import { DataTable, Text } from 'react-native-paper';
 import { COLORS } from '../constants/config';
@@ -15,7 +15,7 @@ interface CurveTableProps {
   onSort: (key: keyof CurvePoint) => void;
 }
 
-export function CurveTable({ points, sortConfig, onSort }: CurveTableProps) {
+function CurveTableComponent({ points, sortConfig, onSort }: CurveTableProps) {
   return (
     <ScrollView horizontal showsHorizontalScrollIndicator={false}>
       <DataTable style={styles.table}>
@@ -111,6 +111,15 @@ function SortableHeader({
     </DataTable.Title>
   );
 }
+
+// Memoized component to prevent unnecessary re-renders
+export const CurveTable = memo(CurveTableComponent, (prevProps, nextProps) => {
+  return (
+    prevProps.points === nextProps.points &&
+    prevProps.sortConfig.key === nextProps.sortConfig.key &&
+    prevProps.sortConfig.direction === nextProps.sortConfig.direction
+  );
+});
 
 const styles = StyleSheet.create({
   table: {
